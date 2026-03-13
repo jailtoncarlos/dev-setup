@@ -1,0 +1,278 @@
+/* Estilo base inspirado no GitHub Markdown — gerado por export_doc.py */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #24292f;
+  background: #ffffff;
+  margin: 0 auto;
+  padding: 1.5rem 2%;
+}
+
+/* ── Compatibilidade com wrappers gerados por ferramentas externas ── */
+.markdown-body {
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1.5rem 2%;
+}
+
+/* ── Índice (TOC) ── */
+#TOC {
+  background: #f6f8fa;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  margin: 0 0 2rem 0;
+  font-size: 0.92rem;
+}
+#TOC ul { padding-left: 1.4em; margin: 0.3em 0; }
+#TOC li { margin: 0.25em 0; }
+#TOC a { color: #0969da; text-decoration: none; }
+#TOC a:hover { text-decoration: underline; }
+
+/* ── Cabeçalhos proporcionais ── */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 1.8em;
+  margin-bottom: 0.6em;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #1f2328;
+}
+h1 { font-size: 2em;   padding-bottom: 0.4em; border-bottom: 2px solid #d0d7de; }
+h2 { font-size: 1.5em; padding-bottom: 0.3em; border-bottom: 1px solid #d0d7de; }
+h3 { font-size: 1.25em; }
+h4 { font-size: 1em; }
+h5 { font-size: 0.875em; }
+h6 { font-size: 0.85em;  color: #57606a; }
+
+/* Título principal do documento (pandoc injeta como h1 do header) */
+header { margin-top: 0; padding-top: 0; }
+header h1.title { border-bottom: 2px solid #d0d7de; }
+
+/* ══════════════════════════════════════════════════════
+   Capa do documento
+   ══════════════════════════════════════════════════════ */
+.capa {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 3rem);
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #d0d7de;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+.capa p { margin: 0; }
+
+/* Faixa superior com cor institucional */
+.capa-header {
+  background: #0550ae;
+  color: #ffffff;
+  padding: 0.9rem 2.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85em;
+  letter-spacing: 0.03em;
+}
+.capa-header .org   { font-weight: 600; font-size: 1em; }
+.capa-header .tipo  { opacity: 0.8; font-size: 0.85em; }
+
+/* Corpo central — título */
+.capa-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3.5rem 2.5rem 2rem;
+}
+.capa-sistema {
+  font-size: 0.78em;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #0550ae;
+  margin-bottom: 0.6rem;
+}
+.capa-titulo {
+  font-size: 2.4em;
+  font-weight: 700;
+  color: #1f2328;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+.capa-divisor {
+  width: 4rem;
+  height: 4px;
+  background: #0550ae;
+  margin: 1.2rem 0;
+  border-radius: 2px;
+}
+.capa-subtitulo {
+  font-size: 1.1em;
+  color: #57606a;
+  line-height: 1.5;
+  max-width: 560px;
+}
+
+/* Bloco de metadados */
+.capa-meta {
+  margin: 2.5rem 2.5rem 0;
+  border: 1px solid #d0d7de;
+  border-left: 4px solid #0550ae;
+  border-radius: 0 6px 6px 0;
+  background: #f6f8fa;
+  padding: 1rem 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem 2rem;
+}
+.capa-meta-item label {
+  display: block;
+  font-size: 0.72em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #57606a;
+  margin-bottom: 0.2rem;
+}
+.capa-meta-item span {
+  font-size: 0.92em;
+  color: #1f2328;
+  font-weight: 500;
+}
+
+/* Rodapé com instituições */
+.capa-footer {
+  margin-top: auto;
+  padding: 1.2rem 2.5rem;
+  border-top: 1px solid #d0d7de;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.capa-footer-label {
+  font-size: 0.72em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #57606a;
+  white-space: nowrap;
+}
+.capa-footer-inst {
+  font-size: 0.82em;
+  color: #57606a;
+  border-left: 1px solid #d0d7de;
+  padding-left: 1.5rem;
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.capa-footer-inst span { white-space: nowrap; }
+
+/* ── Parágrafos e inline ── */
+p  { margin: 0.8em 0; }
+a  { color: #0969da; text-decoration: none; }
+a:hover { text-decoration: underline; }
+strong { font-weight: 600; }
+em     { font-style: italic; }
+
+/* ── Tabelas ── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.2em 0;
+  font-size: 0.93em;
+  overflow-x: auto;
+  display: block;
+}
+thead tr {
+  background: #f6f8fa;
+}
+th, td {
+  border: 1px solid #d0d7de;
+  padding: 0.5em 0.85em;
+  text-align: left;
+  vertical-align: top;
+}
+th {
+  font-weight: 600;
+  background: #f6f8fa;
+  white-space: nowrap;
+}
+tr:nth-child(even) td { background: #f6f8fa; }
+tr:hover td { background: #eaf1fb; }
+
+/* ── Blocos de código ── */
+pre {
+  background: #f6f8fa;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  padding: 1em 1.2em;
+  overflow-x: auto;
+  font-size: 0.88em;
+  line-height: 1.5;
+  margin: 1em 0;
+}
+code {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.9em;
+  background: #eef0f2;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+pre code {
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* ── Listas ── */
+ul, ol {
+  padding-left: 1.8em;
+  margin: 0.6em 0;
+}
+li { margin: 0.3em 0; }
+li > ul, li > ol { margin: 0.2em 0; }
+
+/* ── Citações ── */
+blockquote {
+  border-left: 4px solid #0969da;
+  margin: 1em 0;
+  padding: 0.4em 1em;
+  color: #57606a;
+  background: #f6f8fa;
+  border-radius: 0 6px 6px 0;
+}
+blockquote p { margin: 0.4em 0; }
+
+/* ── Separador ── */
+hr {
+  border: none;
+  border-top: 1px solid #d0d7de;
+  margin: 2em 0;
+}
+
+/* ── Quebra de página (apêndices) ── */
+div[style*="page-break-after"] { display: none; }
+
+/* ── Imagens responsivas ── */
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+/* ── Impressão / PDF via Playwright ── */
+@media print {
+  body { font-size: 13px; color: #000; padding: 0; }
+  a { color: #000; text-decoration: underline; }
+  pre, code { border: 1px solid #ccc; }
+  .capa { min-height: 0; page-break-after: always; border-bottom: none; margin-bottom: 0; }
+  #TOC { page-break-after: always; }
+  h1, h2, h3 { page-break-after: avoid; }
+  div[style*="page-break-after"] { display: block !important; page-break-after: always; }
+  svg { max-width: 100%; height: auto; }
+}

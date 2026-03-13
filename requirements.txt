@@ -1,0 +1,15 @@
+# Dependências do docs/export_doc.py
+#
+# pypandoc-binary: fallback caso o pandoc não esteja instalado no sistema.
+#   Preferível instalar o pandoc diretamente: https://pandoc.org/installing.html
+#
+# playwright: necessário para --format pdf --pdf-engine playwright (padrão).
+#   Preserva CSS e renderiza diagramas Mermaid via Chromium.
+#   Após instalar, execute: playwright install chromium
+#
+# wkhtmltopdf: alternativa mais leve para --format pdf --pdf-engine wkhtmltopdf.
+#   Não executa JavaScript — diagramas Mermaid não serão renderizados.
+#   Instale via sistema: https://wkhtmltopdf.org/downloads.html (não é pacote pip)
+
+pypandoc-binary
+playwright
