@@ -23,9 +23,9 @@ Scripts interativos para configurar uma nova máquina Linux/WSL2 para trabalhar 
 
 | Projeto | Plataforma | Email do commit |
 |---|---|---|
-| `cosinf/suap` | gitlab.ifrn.edu.br | `usuario@ifrn.edu.br` |
-| `Prisma-Consultoria/siscan-rpa` | github.com | `usuario@gmail.com` |
-| `smart/integra` | git.lais.huol.ufrn.br | `usuario@lais.huol.ufrn.br` |
+| `universidade/sistema-academico` | gitlab.universidade.edu.br | `dev@universidade.edu.br` |
+| `minha-empresa/sistema-web` | github.com | `dev@gmail.com` |
+| `cliente/api-interna` | gitlab.cliente.com.br | `dev@cliente.com.br` |
 
 Sem configuração adequada, dois problemas acontecem:
 
@@ -38,19 +38,19 @@ O conceito de **org** é o elemento central que conecta todos os módulos. O nom
 
 | URL | Host detectado | Org sugerida |
 |---|---|---|
-| `git@gitlab.ifrn.edu.br:cosinf/suap.git` | `gitlab.ifrn.edu.br` | `ifrn` |
-| `git@github.com:Prisma-Consultoria/siscan-rpa.git` | `github.com` | `github` |
-| `git@git.lais.huol.ufrn.br:smart/integra.git` | `git.lais.huol.ufrn.br` | `lais` |
+| `git@gitlab.universidade.edu.br:ti/sistema-academico.git` | `gitlab.universidade.edu.br` | `universidade` |
+| `git@github.com:minha-empresa/sistema-web.git` | `github.com` | `github` |
+| `git@gitlab.cliente.com.br:dev/api-interna.git` | `gitlab.cliente.com.br` | `cliente` |
 
 A partir do nome da org, tudo é derivado automaticamente:
 
 ```
-org: ifrn
- ├── SSH key:     ~/.ssh/ifrn_id_ed25519
- ├── SSH config:  Host gitlab.ifrn.edu.br → IdentityFile ifrn_id_ed25519
- ├── Git config:  includeIf "gitdir:~/workspace/ifrn/" → email ifrn
- ├── Workspace:   ~/workspace/ifrn/<projeto>
- └── Clone:       git clone <url> ~/workspace/ifrn/<projeto>
+org: universidade
+ ├── SSH key:     ~/.ssh/universidade_id_ed25519
+ ├── SSH config:  Host gitlab.universidade.edu.br → IdentityFile universidade_id_ed25519
+ ├── Git config:  includeIf "gitdir:~/workspace/universidade/" → email universidade
+ ├── Workspace:   ~/workspace/universidade/<projeto>
+ └── Clone:       git clone <url> ~/workspace/universidade/<projeto>
 ```
 
 #### Como o Git sabe qual e-mail usar?
@@ -59,14 +59,14 @@ O mecanismo `includeIf` do Git aplica uma configuração diferente dependendo do
 
 ```
 ~/.gitconfig
-├── [user] email = usuario@gmail.com           ← padrão (fora de qualquer org)
-├── [includeIf "gitdir:~/workspace/ifrn/"]
-│     path = ~/.gitconfig-ifrn                 ← email: usuario@ifrn.edu.br
-└── [includeIf "gitdir:~/workspace/lais/"]
-      path = ~/.gitconfig-lais                 ← email: usuario@lais.huol.ufrn.br
+├── [user] email = dev@gmail.com                     ← padrão (fora de qualquer org)
+├── [includeIf "gitdir:~/workspace/universidade/"]
+│     path = ~/.gitconfig-universidade               ← email: dev@universidade.edu.br
+└── [includeIf "gitdir:~/workspace/cliente/"]
+      path = ~/.gitconfig-cliente                    ← email: dev@cliente.com.br
 ```
 
-Um `git commit` dentro de `~/workspace/ifrn/suap/` usará automaticamente o e-mail do IFRN, sem nenhuma configuração manual por repositório.
+Um `git commit` dentro de `~/workspace/universidade/sistema-academico/` usará automaticamente o e-mail da universidade, sem nenhuma configuração manual por repositório.
 
 #### Como o SSH sabe qual chave usar?
 
@@ -74,9 +74,9 @@ O `~/.ssh/config` mapeia cada host a uma chave dedicada:
 
 ```
 ~/.ssh/config
-├── Host gitlab.ifrn.edu.br      → ~/.ssh/ifrn_id_ed25519
-├── Host github.com              → ~/.ssh/github_id_ed25519
-└── Host git.lais.huol.ufrn.br  → ~/.ssh/lais_id_ed25519
+├── Host gitlab.universidade.edu.br  → ~/.ssh/universidade_id_ed25519
+├── Host github.com                  → ~/.ssh/github_id_ed25519
+└── Host gitlab.cliente.com.br       → ~/.ssh/cliente_id_ed25519
 ```
 
 O script de `ssh-agent` (instalado em `~/.add_ssh_keys.sh` e carregado pelo `.bashrc`) inicia o agente automaticamente e carrega todas as chaves ao abrir o terminal.
@@ -118,17 +118,17 @@ Ao iniciar, o script exibe o estado atual do ambiente:
   Git
   [✓] Nome global         Jailton Paiva
   [✓] Email global        usuario@gmail.com
-  [✓] Perfis de org       ifrn, lais
+  [✓] Perfis de org       universidade, cliente
 
   SSH
-  [✓] Chaves              ifrn, lais
+  [✓] Chaves              universidade, cliente
   [✓] ~/.ssh/config       2 host(s) configurado(s)
 
   Shell  (~/.bashrc)
   [✓] ssh-agent automático
 
   Workspace
-  [✓] Diretório base      ~/workspace  (ifrn, lais, pessoal)
+  [✓] Diretório base      ~/workspace  (universidade, cliente, pessoal)
 ```
 
 ### Fluxo completo: máquina nova → projetos rodando
@@ -149,7 +149,7 @@ O script pergunta:
 - Para cada organização: nome, host Git e e-mail
 
 E configura automaticamente para cada org:
-- Gera `~/.ssh/id_ed25519_<org>`
+- Gera `~/.ssh/<org>_id_ed25519`
 - Adiciona o host em `~/.ssh/config`
 - Cria `~/.gitconfig-<org>` e o `includeIf` em `~/.gitconfig`
 - Cria `~/workspace/<org>/`
@@ -162,15 +162,15 @@ O script exibe cada chave e aguarda você cadastrá-la:
 | Plataforma | URL de configuração |
 |---|---|
 | GitHub | `https://github.com/settings/keys` |
-| GitLab IFRN | `https://gitlab.ifrn.edu.br/-/profile/keys` |
-| GitLab LAIS | `https://git.lais.huol.ufrn.br/-/profile/keys` |
+| GitLab (auto-hospedado) | `https://<seu-gitlab>/-/profile/keys` |
+| Bitbucket | `https://bitbucket.org/account/settings/ssh-keys/` |
 
 **Passo 4 — Abrir novo terminal** (para recarregar o `.bashrc`)
 
 ```bash
-ssh-add -l                       # chaves carregadas?
-ssh -T git@gitlab.ifrn.edu.br    # autenticação ok?
-ssh -T git@github.com
+ssh-add -l                                    # chaves carregadas?
+ssh -T git@github.com                         # autenticação ok?
+ssh -T git@gitlab.universidade.edu.br         # substitua pelo seu host
 ```
 
 **Passo 5 — Opção `2) Clonar projeto`**
@@ -178,16 +178,16 @@ ssh -T git@github.com
 Informe a URL do repositório. O script detecta o host, sugere a org, confirma o destino e clona:
 
 ```bash
-URL: git@gitlab.ifrn.edu.br:cosinf/suap.git
+URL: git@gitlab.universidade.edu.br:ti/sistema-academico.git
 
-[INFO]  Host detectado:  gitlab.ifrn.edu.br
-[INFO]  Org sugerida:    ifrn
-[CMD]   git clone git@gitlab.ifrn.edu.br:cosinf/suap.git ~/workspace/ifrn/suap
-[OK]    Clone concluído: ~/workspace/ifrn/suap
+[INFO]  Host detectado:  gitlab.universidade.edu.br
+[INFO]  Org sugerida:    universidade
+[CMD]   git clone git@gitlab.universidade.edu.br:ti/sistema-academico.git ~/workspace/universidade/sistema-academico
+[OK]    Clone concluído: ~/workspace/universidade/sistema-academico
 
 Identidade de commits neste repositório:
-  Nome:  Jailton Paiva
-  Email: usuario@ifrn.edu.br
+  Nome:  Seu Nome
+  Email: dev@universidade.edu.br
 ```
 
 ### Requisitos
