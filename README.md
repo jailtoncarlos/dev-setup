@@ -15,11 +15,11 @@ Coleção de utilitários para ambiente de desenvolvimento. Cada contexto é ind
 
 ## 1. Configuração de ambiente
 
-Scripts interativos para configurar uma nova máquina Linux/WSL2 do zero para trabalhar com múltiplos repositórios em plataformas diferentes.
+Scripts interativos para configurar uma nova máquina Linux/WSL2 para trabalhar com múltiplos repositórios em plataformas diferentes.
 
 ### O problema: múltiplos repositórios, múltiplas identidades
 
-É comum um desenvolvedor trabalhar simultaneamente com projetos em plataformas distintas — por exemplo:
+É comum um desenvolvedor trabalhar com projetos em plataformas distintas — por exemplo:
 
 | Projeto | Plataforma | Email do commit |
 |---|---|---|
@@ -29,74 +29,135 @@ Scripts interativos para configurar uma nova máquina Linux/WSL2 do zero para tr
 
 Sem configuração adequada, dois problemas acontecem:
 
-1. **Commits sem autoria correta** — o Git usa um único e-mail global, então commits no GitLab do IFRN aparecem como de um usuário desconhecido (e-mail não cadastrado na plataforma).
+1. **Commits com autoria errada** — o Git usa um único e-mail global, então commits aparecem como de um usuário desconhecido na plataforma errada.
 2. **Autenticação SSH ambígua** — sem chaves separadas por plataforma, o SSH pode usar a chave errada ou falhar ao autenticar.
 
-### O que é configurado
+### Conceito central: Organização
 
-| Módulo | O que faz | Arquivo alterado |
+O conceito de **org** é o elemento central que conecta todos os módulos. O nome da org é derivado automaticamente do domínio da URL do repositório:
+
+| URL | Host detectado | Org sugerida |
 |---|---|---|
-| **ssh** | Gera uma chave `ed25519` por plataforma e mapeia cada host à sua chave | `~/.ssh/config`, `~/.ssh/id_ed25519_<plataforma>` |
-| **git** | Define e-mail global (padrão) e e-mails específicos por diretório de trabalho | `~/.gitconfig`, `~/.gitconfig-<org>` |
-| **workspace** | Cria a estrutura de pastas por organização (`~/workspace/ifrn/`, `~/workspace/lais/`, etc.) | — |
-| **shell** | Inicia o `ssh-agent` automaticamente no login e carrega todas as chaves | `~/.bashrc` / `~/.zshrc` |
-| **tools/nvm** | Instala o [NVM](https://github.com/nvm-sh/nvm) para gerenciar versões do Node.js | `~/.nvm/` |
+| `git@gitlab.ifrn.edu.br:cosinf/suap.git` | `gitlab.ifrn.edu.br` | `ifrn` |
+| `git@github.com:Prisma-Consultoria/siscan-rpa.git` | `github.com` | `github` |
+| `git@git.lais.huol.ufrn.br:smart/integra.git` | `git.lais.huol.ufrn.br` | `lais` |
+
+A partir do nome da org, tudo é derivado automaticamente:
+
+```
+org: ifrn
+ ├── SSH key:     ~/.ssh/id_ed25519_ifrn
+ ├── SSH config:  Host gitlab.ifrn.edu.br → IdentityFile id_ed25519_ifrn
+ ├── Git config:  includeIf "gitdir:~/workspace/ifrn/" → email ifrn
+ ├── Workspace:   ~/workspace/ifrn/<projeto>
+ └── Clone:       git clone <url> ~/workspace/ifrn/<projeto>
+```
 
 #### Como o Git sabe qual e-mail usar?
 
-O módulo **git** usa o mecanismo `includeIf` do Git, que aplica uma configuração diferente dependendo do diretório onde o repositório está clonado:
+O mecanismo `includeIf` do Git aplica uma configuração diferente dependendo do diretório onde o repositório está clonado:
 
 ```
 ~/.gitconfig
-├── [user] email = usuario@gmail.com   ← padrão (GitHub)
+├── [user] email = usuario@gmail.com           ← padrão (fora de qualquer org)
 ├── [includeIf "gitdir:~/workspace/ifrn/"]
-│     path = ~/.gitconfig-ifrn         ← email: usuario@ifrn.edu.br
+│     path = ~/.gitconfig-ifrn                 ← email: usuario@ifrn.edu.br
 └── [includeIf "gitdir:~/workspace/lais/"]
-      path = ~/.gitconfig-lais         ← email: usuario@lais.huol.ufrn.br
+      path = ~/.gitconfig-lais                 ← email: usuario@lais.huol.ufrn.br
 ```
 
-Assim, um `git commit` dentro de `~/workspace/ifrn/suap/` usa automaticamente o e-mail do IFRN, sem nenhuma configuração manual por repositório.
+Um `git commit` dentro de `~/workspace/ifrn/suap/` usará automaticamente o e-mail do IFRN, sem nenhuma configuração manual por repositório.
 
 #### Como o SSH sabe qual chave usar?
 
-O módulo **ssh** configura o `~/.ssh/config` mapeando cada host a uma chave dedicada:
+O `~/.ssh/config` mapeia cada host a uma chave dedicada:
 
 ```
 ~/.ssh/config
-├── Host github.com          → ~/.ssh/id_ed25519_github
-├── Host gitlab.ifrn.edu.br  → ~/.ssh/id_ed25519_gitlab_ifrn
-└── Host git.lais.huol.ufrn.br → ~/.ssh/id_ed25519_gitlab_lais
+├── Host gitlab.ifrn.edu.br      → ~/.ssh/id_ed25519_ifrn
+├── Host github.com              → ~/.ssh/id_ed25519_github
+└── Host git.lais.huol.ufrn.br  → ~/.ssh/id_ed25519_lais
 ```
 
-O módulo **shell** garante que o `ssh-agent` já esteja rodando e com todas as chaves carregadas ao abrir o terminal, evitando digitação de senha repetida.
+O script de `ssh-agent` (instalado em `~/.add_ssh_keys.sh` e carregado pelo `.bashrc`) inicia o agente automaticamente e carrega todas as chaves ao abrir o terminal.
+
+### Como usar
+
+```bash
+git clone https://github.com/jailtoncarlos/dev-setup.git ~/dev-setup
+cd ~/dev-setup
+bash devsetup.sh
+```
+
+O menu principal oferece três opções:
+
+```
+╔══════════════════════════════════════════════════════╗
+║               dev-setup — Menu Principal             ║
+╚══════════════════════════════════════════════════════╝
+
+  1) Preparar ambiente
+     Configura SSH, Git, workspace e shell para múltiplos repositórios
+
+  2) Clonar projeto
+     Detecta a org pelo domínio da URL e clona no diretório correto
+
+  3) Gerar HTML/PDF de arquivo .md
+     Converte Markdown com suporte a diagramas Mermaid
+
+  q) Sair
+```
+
+Ao iniciar, o script exibe o estado atual do ambiente:
+
+```
+╔══════════════════════════════════════════════════════╗
+║            Estado do ambiente atual                  ║
+╚══════════════════════════════════════════════════════╝
+
+  Git
+  [✓] Nome global         Jailton Paiva
+  [✓] Email global        usuario@gmail.com
+  [✓] Perfis de org       ifrn, lais
+
+  SSH
+  [✓] Chaves              ifrn, lais
+  [✓] ~/.ssh/config       2 host(s) configurado(s)
+
+  Shell  (~/.bashrc)
+  [✓] ssh-agent automático
+
+  Workspace
+  [✓] Diretório base      ~/workspace  (ifrn, lais, pessoal)
+```
 
 ### Fluxo completo: máquina nova → projetos rodando
-
-> Exemplo com os projetos `cosinf/suap` (IFRN), `Prisma-Consultoria/siscan-rpa` (GitHub) e `smart/integra` (LAIS).
 
 **Passo 1 — Clonar o dev-setup** (única vez que você usa HTTPS)
 
 ```bash
 git clone https://github.com/jailtoncarlos/dev-setup.git ~/dev-setup
 cd ~/dev-setup
+bash devsetup.sh
 ```
 
-**Passo 2 — Executar o setup**
+**Passo 2 — Opção `1) Preparar ambiente`**
 
-```bash
-bash setup.sh
-```
+O script pergunta:
+- Seu nome e e-mail padrão
+- Diretório base dos projetos (`~/workspace/` sugerido)
+- Para cada organização: nome, host Git e e-mail
 
-O menu interativo guia cada etapa. Ao final, terão sido configurados:
-- Chaves SSH geradas para cada plataforma
-- `~/.ssh/config` com os três hosts
-- `~/.gitconfig` com e-mails por diretório
-- `~/workspace/ifrn/`, `~/workspace/lais/`, `~/workspace/prisma_roche/` criados
-- `~/.bashrc` com carregamento automático do `ssh-agent`
+E configura automaticamente para cada org:
+- Gera `~/.ssh/id_ed25519_<org>`
+- Adiciona o host em `~/.ssh/config`
+- Cria `~/.gitconfig-<org>` e o `includeIf` em `~/.gitconfig`
+- Cria `~/workspace/<org>/`
+- Exibe a chave pública para cadastro na plataforma
 
 **Passo 3 — Adicionar as chaves públicas nas plataformas**
 
-O script exibe cada chave pública e a URL de onde cadastrá-la. Acesse cada URL e cole a chave:
+O script exibe cada chave e aguarda você cadastrá-la:
 
 | Plataforma | URL de configuração |
 |---|---|
@@ -104,45 +165,30 @@ O script exibe cada chave pública e a URL de onde cadastrá-la. Acesse cada URL
 | GitLab IFRN | `https://gitlab.ifrn.edu.br/-/profile/keys` |
 | GitLab LAIS | `https://git.lais.huol.ufrn.br/-/profile/keys` |
 
-**Passo 4 — Abrir novo terminal** (para o `.bashrc` ser recarregado)
+**Passo 4 — Abrir novo terminal** (para recarregar o `.bashrc`)
 
 ```bash
-# Verifique que as chaves estão carregadas
-ssh-add -l
-
-# Teste a autenticação em cada plataforma
+ssh-add -l                       # chaves carregadas?
+ssh -T git@gitlab.ifrn.edu.br    # autenticação ok?
 ssh -T git@github.com
-ssh -T git@gitlab.ifrn.edu.br
-ssh -T git@git.lais.huol.ufrn.br
 ```
 
-**Passo 5 — Clonar os projetos nas pastas corretas**
+**Passo 5 — Opção `2) Clonar projeto`**
+
+Informe a URL do repositório. O script detecta o host, sugere a org, confirma o destino e clona:
 
 ```bash
-# IFRN → ~/workspace/ifrn/  (commits usarão usuario@ifrn.edu.br)
-git clone git@gitlab.ifrn.edu.br:cosinf/suap.git ~/workspace/ifrn/suap
+URL: git@gitlab.ifrn.edu.br:cosinf/suap.git
 
-# GitHub → ~/workspace/prisma_roche/  (commits usarão usuario@gmail.com)
-git clone git@github.com:Prisma-Consultoria/siscan-rpa.git ~/workspace/prisma_roche/siscan-rpa
+[INFO]  Host detectado:  gitlab.ifrn.edu.br
+[INFO]  Org sugerida:    ifrn
+[CMD]   git clone git@gitlab.ifrn.edu.br:cosinf/suap.git ~/workspace/ifrn/suap
+[OK]    Clone concluído: ~/workspace/ifrn/suap
 
-# LAIS → ~/workspace/lais/  (commits usarão usuario@lais.huol.ufrn.br)
-git clone git@git.lais.huol.ufrn.br:smart/integra.git ~/workspace/lais/integra
+Identidade de commits neste repositório:
+  Nome:  Jailton Paiva
+  Email: usuario@ifrn.edu.br
 ```
-
-**Passo 6 — Verificar a identidade em cada repositório**
-
-```bash
-git -C ~/workspace/ifrn/suap config user.email
-# → usuario@ifrn.edu.br
-
-git -C ~/workspace/prisma_roche/siscan-rpa config user.email
-# → usuario@gmail.com
-
-git -C ~/workspace/lais/integra config user.email
-# → usuario@lais.huol.ufrn.br
-```
-
-Pronto. A partir daqui, `git commit` em qualquer repositório usará automaticamente a identidade correta.
 
 ### Requisitos
 
@@ -156,7 +202,13 @@ Pronto. A partir daqui, `git commit` em qualquer repositório usará automaticam
 
 Converte arquivos Markdown para HTML ou PDF via pandoc, com suporte a diagramas Mermaid (`flowchart LR`, `sequenceDiagram`, C4, etc.).
 
-### Uso rápido
+Disponível via menu (`opção 3`) ou diretamente:
+
+```bash
+python3 docs/export_doc.py docs/DEPLOY.md
+```
+
+### Uso direto
 
 ```bash
 # HTML standalone (padrão) — segue links para outros .md e os incorpora como apêndices
@@ -209,60 +261,53 @@ playwright install chromium  # apenas se usar --pdf-engine playwright (padrão)
 | `academic` | Layout acadêmico |
 | `minimal` | Minimalista |
 
-```bash
-python3 docs/export_doc.py doc.md --theme academic
-```
-
 ---
 
 ## Estrutura do repositório
 
 ```
 dev-setup/
-├── setup.sh                  # Entry point interativo (menu de módulos)
-├── requirements.txt          # Dependências Python
+├── devsetup.sh               # Entry point — menu principal + painel de estado
+├── requirements.txt          # Dependências Python (docs)
+│
 ├── lib/
-│   └── common.sh             # Funções compartilhadas (log, prompt, helpers)
+│   ├── common.sh             # Funções de log, prompt e cores
+│   └── orgs.sh               # Detecção de org por URL, listagem de orgs configuradas
 │
 ├── # ── Contexto 1: Configuração de ambiente ──────────────────────────────
-├── ssh/
-│   ├── setup.sh
-│   └── templates/
-│       └── add_ssh_keys.sh
-├── git/
-│   └── setup.sh
+├── setup/
+│   └── main.sh               # Configuração org-cêntrica (SSH + Git + workspace + shell)
+├── clone/
+│   └── clone.sh              # Clone com detecção automática de org pela URL
 ├── shell/
-│   └── setup.sh
-├── workspace/
-│   └── setup.sh
+│   └── setup.sh              # Configuração do .bashrc/.zshrc
+├── ssh/
+│   └── templates/
+│       └── add_ssh_keys.sh   # Script de ssh-agent (instalado em ~/.add_ssh_keys.sh)
 ├── tools/
-│   └── nvm.sh
+│   └── nvm.sh                # Instalação do NVM
 │
-└── # ── Contexto 2: Documentação ───────────────────────────────────────────
+└── # ── Contexto 2: Documentação ────────────────────────────────────────────
     docs/
     ├── export_doc.py         # Converte .md → HTML ou PDF
     ├── pandoc_mermaid.lua    # Filtro Lua para diagramas Mermaid
     └── assets/
         ├── doc.css           # CSS padrão
-        └── themes/           # Temas alternativos
+        └── themes/           # Temas alternativos (github, academic, minimal)
 ```
 
 ---
 
 ## Adicionando novos utilitários
 
-### Novo módulo de setup (contexto 1)
+### Novo módulo dentro de um contexto existente
 
-1. Crie a pasta e o script (ex: `docker/setup.sh`) usando `lib/common.sh`
-2. Registre em `setup.sh`:
-
-```bash
-MODULES=(
-    ...
-    "docker|Instalar Docker|docker/setup.sh"
-)
-```
+1. Crie o script na pasta do contexto (ex: `setup/docker.sh`)
+2. Use `lib/common.sh` para logs e prompts padronizados
+3. Chame-o a partir do menu em `devsetup.sh` ou do orquestrador do contexto
 
 ### Novo contexto
 
-Crie uma pasta dedicada com seus scripts e documente aqui uma nova seção numerada.
+1. Crie uma pasta dedicada com seus scripts
+2. Adicione uma opção numerada no menu de `devsetup.sh`
+3. Documente aqui uma nova seção numerada
