@@ -41,16 +41,16 @@ extract_project_from_url() {
 }
 
 # ─── Caminhos derivados do nome da org ───────────────────────────────────────
-org_ssh_key()        { echo "$HOME/.ssh/id_ed25519_$1"; }
+org_ssh_key()        { echo "$HOME/.ssh/${1}_id_ed25519"; }
 org_gitconfig_file() { echo "$HOME/.gitconfig-$1"; }
 org_workspace_dir()  { echo "${2:-$HOME/workspace}/$1"; }
 
 # ─── Lista orgs já configuradas (a partir das chaves SSH existentes) ──────────
 list_configured_orgs() {
-    for key in "$HOME"/.ssh/id_ed25519_*; do
+    for key in "$HOME"/.ssh/*_id_ed25519; do
         [[ "$key" == *.pub ]] && continue
         [ -f "$key" ] || continue
-        basename "$key" | sed 's/^id_ed25519_//'
+        basename "$key" | sed 's/_id_ed25519$//'
     done
 }
 

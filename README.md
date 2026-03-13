@@ -46,8 +46,8 @@ A partir do nome da org, tudo é derivado automaticamente:
 
 ```
 org: ifrn
- ├── SSH key:     ~/.ssh/id_ed25519_ifrn
- ├── SSH config:  Host gitlab.ifrn.edu.br → IdentityFile id_ed25519_ifrn
+ ├── SSH key:     ~/.ssh/ifrn_id_ed25519
+ ├── SSH config:  Host gitlab.ifrn.edu.br → IdentityFile ifrn_id_ed25519
  ├── Git config:  includeIf "gitdir:~/workspace/ifrn/" → email ifrn
  ├── Workspace:   ~/workspace/ifrn/<projeto>
  └── Clone:       git clone <url> ~/workspace/ifrn/<projeto>
@@ -74,9 +74,9 @@ O `~/.ssh/config` mapeia cada host a uma chave dedicada:
 
 ```
 ~/.ssh/config
-├── Host gitlab.ifrn.edu.br      → ~/.ssh/id_ed25519_ifrn
-├── Host github.com              → ~/.ssh/id_ed25519_github
-└── Host git.lais.huol.ufrn.br  → ~/.ssh/id_ed25519_lais
+├── Host gitlab.ifrn.edu.br      → ~/.ssh/ifrn_id_ed25519
+├── Host github.com              → ~/.ssh/github_id_ed25519
+└── Host git.lais.huol.ufrn.br  → ~/.ssh/lais_id_ed25519
 ```
 
 O script de `ssh-agent` (instalado em `~/.add_ssh_keys.sh` e carregado pelo `.bashrc`) inicia o agente automaticamente e carrega todas as chaves ao abrir o terminal.

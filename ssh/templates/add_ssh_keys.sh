@@ -1,6 +1,6 @@
 #!/bin/bash
 # ~/.add_ssh_keys.sh
-# Inicia o ssh-agent (ou reutiliza um existente) e carrega todas as chaves id_ed25519_*
+# Inicia o ssh-agent (ou reutiliza um existente) e carrega todas as chaves *_id_ed25519
 # Gerado automaticamente por dev-setup — edite com cuidado.
 
 SSH_ENV="$HOME/.ssh/agent.env"
@@ -29,7 +29,7 @@ if [ $? -eq 2 ]; then
     start_agent
 fi
 
-for key in "$HOME"/.ssh/id_ed25519_*; do
+for key in "$HOME"/.ssh/*_id_ed25519; do
     [ -f "$key" ]      || continue
     [[ "$key" == *.pub ]] && continue
 
